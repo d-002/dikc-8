@@ -55,8 +55,10 @@ Python utilities and DIKC-8 schematic
 
 ## Requirements
 
-1. **Python**: pip modules
-   - pip modules: 
+1. **Python**
+   - Python 3.x
+   - compiler: `time` (already in the Standard Library)
+   - simulator: `pygame>=2.0.0`
 2. **Minecraft**
    - Minecraft 1.17+
    - Fabric
