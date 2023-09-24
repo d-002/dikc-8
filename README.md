@@ -1,6 +1,6 @@
 # dikc-8 (D_00's Incredible Keyboardless CPU)
 
-Python utilities and DIKC-8 schematic
+Python utilities, DIKC-8 schematic and world download
 
 ### Recommended: watch this video before doing anything: https://youtu.be/G53FWyzu7fc
 
