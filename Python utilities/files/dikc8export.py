@@ -68,5 +68,6 @@ def export(data, filename, override_ass=False):
 
 schematics_folder = join(getenv('appdata'), '.minecraft\\schematics\\DIKC-8 ROMs')
 if not exists(schematics_folder):
-    makedirs('Export Scripts')
+    if not exists('Export Scripts'):
+        makedirs('Export Scripts')
     schematics_folder = 'Export Scripts'
