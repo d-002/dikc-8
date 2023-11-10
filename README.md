@@ -58,6 +58,7 @@ Python utilities, DIKC-8 schematic and world download
 1. **Python**
    - Python 3.x
    - compiler: `time` (already in the Standard Library)
+   - exporter: `litemapy`
    - simulator: `pygame>=2.0.0`
 2. **Minecraft**
    - Minecraft 1.17+
