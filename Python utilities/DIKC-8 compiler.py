@@ -660,7 +660,7 @@ start = time()
 
 rom_size = 128 # commands = groups of 16 bits
 ram_size = {'INT': 16, 'BOOL': 8}
-filename = 'scripts\\calculation.dikc'
+filename = 'scripts/calculation.dikc'
 
 # get the file content
 raw = get_raw(filename)

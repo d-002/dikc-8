@@ -1,4 +1,4 @@
-from os import getenv, makedirs
+from os import getenv, makedirs, name
 from os.path import splitext, basename, join, exists
 from litemapy import Schematic, Region, BlockState
 
@@ -66,6 +66,11 @@ def export(data, filename, override_ass=False):
     schem.save(path)
     print('Successfully exported to %s' %path)
 
-schematics_folder = join(getenv('appdata'), '.minecraft\\schematics\\DIKC-8 ROMs')
+if name=='nt':
+    schematics_folder = join(getenv('appdata'), '.minecraft\\schematics\\DIKC-8 ROMs')
+else:
+    schematics_folder = 'Export Scripts'
 if not exists(schematics_folder):
-    makedirs(schematics_folder)
+    if not exists('Export Scripts'):
+        makedirs('Export Scripts')
+    schematics_folder = 'Export Scripts'
