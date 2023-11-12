@@ -1,12 +1,12 @@
-# dikc-8 (D_00's Incredible Keyboardless CPU)
+# dikc-8
 
-Python utilities, DIKC-8 schematic and world download
+Python utilities and DIKC-8 schematic
 
 ### Recommended: watch this video before doing anything: https://youtu.be/G53FWyzu7fc
 
 ## Languages recommendations
 <details>
-  <summary><h3>`.dikc` language</h3></summary>
+  <summary><h3>DIKC language</h3></summary>
   
 1. **Instructions**
    - int var = value/var (initialize new int variable to `value` or value of variable `var`)
@@ -28,7 +28,7 @@ Python utilities, DIKC-8 schematic and world download
 </details>
 
 <details>
-  <summary><h3>`.ass`embly language</h3></summary>
+  <summary><h3>ASS language</h3></summary>
 
 1. **Instructions**
    - LDI a value (set value of int at address `a` to `value`)
@@ -57,7 +57,7 @@ Python utilities, DIKC-8 schematic and world download
 
 1. **Python**
    - Python 3.x
-   - compiler: `time` (already in the Standard Library)
+   - `time`, `tkinter` (already in the Standard Library)
    - exporter: `litemapy`
    - simulator: `pygame>=2.0.0`
 2. **Minecraft**
@@ -67,6 +67,7 @@ Python utilities, DIKC-8 schematic and world download
    - Malilib
    - Litematica
    - (recommended, to speed up the game): Carpet mod, Sodium/Lithium/Phosphor
+   - Not MCHPRS compatible
 
 Happy coding!
 
