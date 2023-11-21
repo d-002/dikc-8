@@ -1,0 +1,32 @@
+lightPixel(4, 10);
+lightPixel(5, 10);
+lightPixel(4, 11);
+lightPixel(5, 11);
+
+lightPixel(11, 10);
+lightPixel(10, 11);
+lightPixel(11, 11);
+
+lightPixel(2, 4);
+lightPixel(3, 4);
+lightPixel(2, 5);
+lightPixel(3, 5);
+lightPixel(11, 4);
+lightPixel(11, 5);
+lightPixel(12, 4);
+lightPixel(12, 5);
+
+lightPixel(4, 3);
+lightPixel(4, 4);
+lightPixel(5, 3);
+lightPixel(5, 4);
+lightPixel(6, 3);
+lightPixel(6, 4);
+lightPixel(7, 3);
+lightPixel(7, 4);
+lightPixel(8, 3);
+lightPixel(8, 4);
+lightPixel(9, 3);
+lightPixel(9, 4);
+lightPixel(10, 3);
+lightPixel(10, 4);

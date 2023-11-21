@@ -1,0 +1,11 @@
+int a = 1;
+int b = 1;
+int c = 0;
+int i = 2;
+
+while (i < 12) {
+	c = a+b;
+	a = b;
+	b = c;
+	i = i+1;
+}

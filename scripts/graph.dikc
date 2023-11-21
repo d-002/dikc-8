@@ -1,0 +1,30 @@
+int x = 0;
+int y = undefined;
+int prevY = 11;
+
+while (x < 16) {
+	int x2 = x/2-2;
+	y = x2*x2*x2;
+	/* deal with negative numbers */
+	if (y < 128) {
+		y = y/20-x+12;
+	}
+	if (y >= 128) {
+		y = 0-y/20;
+		y = 0-y-x+12;
+	}
+
+	int a = prevY;
+	int b = y;
+	if (y < prevY) {
+		a = y;
+		b = prevY;
+	}
+	while (a <= b) {
+		a = a+1;
+		lightPixel(x, a);
+	}
+
+	x = x+1;
+	prevY = y;
+}

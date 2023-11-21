@@ -1,3 +1,4 @@
+from files.prompts import *
 from files.dikc8export import *
 
 def b(n, size=4):
@@ -12,6 +13,7 @@ def assemble(filename):
 
     program = []
     for line in lines:
+        if not line: continue
         line = line.split(' ')
         name, args = line[0], line[1:]
         cmd_id = commands.index(name)
@@ -41,7 +43,9 @@ def assemble(filename):
 
     return ''.join(program)
 
-filename = 'scripts/fibo_manual.ass'
+filename, folder = ask_both('ass')
+log_init('assembling')
 
 binary = assemble(filename)
-export(binary, filename, True)
+export(binary, filename, folder, log, True)
+log_wait()

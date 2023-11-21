@@ -1,0 +1,11 @@
+int x = 42;
+
+while (x > 1) {
+	int mod = x*128/128;
+	if (mod == 1) {
+		x = 3*x + 1;
+	}
+	if (mod == 0) {
+		x = x/2;
+	}
+}
