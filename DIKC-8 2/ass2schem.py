@@ -2,27 +2,27 @@
 # TODO: add all help
 
 from os import getenv, makedirs
-from os.path import splitext, basename, join, exists
+from os.path import splitext, basename, join, exists, isfile
 from litemapy import Schematic, Region, BlockState
 from sys import argv, stderr
 
 class Fore:
     RED = YELLOW = GREEN = CYAN = RESET = ''
 
-# commands start at index 0, but I added 100 to avoid conflicts with global bool values
-WRT,CPY,BIT,SDB,SCB,DBF,ABF,CBF,EQU,MOR,LES,LSH,RSH,SUB,ADD,NOT,ORR,AND,XOR,JPI,JMP,OUT,OUP,INN,MUL,DIV,MOD,END,NOP,PUS,POP = list(range(100, 119))+list(range(120, 132))
+# commands start at index 0, but I added 1000 to avoid conflicts with global bool values
+WRT,CPY,BIT,SDB,SCB,DBF,ABF,CBF,EQU,MOR,LES,LSH,RSH,SUB,ADD,NOT,ORR,AND,XOR,JPI,JMP,OUT,OUP,INN,MUL,DIV,MOD,END,NOP,PUS,POP = list(range(1000, 1019))+list(range(1020, 1032))
 gl = globals()
 # values: 16*(number of arguments) + 4^n * (type of argument n)
-commands = {WRT: 140, CPY: 137, BIT: 139, SDB:  64, SCB: 139, DBF:  64,
-            ABF:  64, CBF: 139, EQU: 137, MOR: 137, LES: 137, LSH:  72,
-            RSH:  72, SUB: 137, ADD: 137, NOT:  72, ORR: 137, AND: 137,
-            XOR: 137, JPI: 104, JMP: 104, OUT: 138, OUP: 138, INN: 138,
-            MUL: 137, DIV: 137, MOD: 137, END:   0, NOP:   0, PUS:   0,
-            POP:   0}
+commands = {WRT: 1120, CPY: 1096, BIT: 1630, SDB:  512, SCB: 1112, DBF:  512,
+            ABF:  512, CBF: 1112, EQU: 1096, MOR: 1096, LES: 1096, LSH:  576,
+            RSH:  576, SUB: 1096, ADD: 1096, NOT:  576, ORR: 1096, AND: 1096,
+            XOR: 1096, JPI:  832, JMP:  832, OUT: 1104, OUP: 1104, INN: 1104,
+            MUL: 1096, DIV: 1096, MOD: 1096, END:    0, NOP:    0, PUS:    0,
+            POP:    0}
 # instructions that take multiple cycles
 multiple = {EQU: 2, MOR: 2, LES: 2, LSH: 2, RSH: 2, SUB: 2, ADD: 2, NOT: 2,
             ORR: 2, AND: 2, XOR: 2, JPI: 2, JMP: 2, MUL: 3, DIV: 3, MOD: 3}
-for i in range(100, 133):
+for i in range(1000, 1033):
     if i != 19 and i not in multiple: multiple[i] = 1
 # instructions that can FOR SURE run in parallel
 # (others: only show a warning because may still work)
@@ -61,21 +61,21 @@ explanation = {
     POP: 'Put the latest (default 0) call stack value into the program counter'
 }
 MAXINT = 256
-WORDSIZE = 8
-RAMSIZE = 32
-ROMSIZE = 128
-IOSIZE = 8
+WORDSIZE = 8 # bits
+RAMSIZE = 32 # bytes
+ROMSIZE = 128 # instructions
+IOSIZE = 8 # bytes
 WRTLIMIT = 32
-comments = ('Number', 'Address', 'IO address', 'Bit index', 'Short value', 'Program counter address')
-bounds = (MAXINT, RAMSIZE, IOSIZE, WORDSIZE, WRTLIMIT, ROMSIZE)
+comments = ('Number', 'Address', 'IO address', 'Bit index', 'Short value', 'Program counter address', 'Single bit')
+bounds = (MAXINT, RAMSIZE, IOSIZE, WORDSIZE, WRTLIMIT, ROMSIZE, 2)
 
 def _help(cmd):
     name = get_cmd_name(cmd)
     if name is None: raise NotImplementedError('This command does not exist')
-    syntax = Fore.CYAN + name + ''.join(' '+chr(97+i) for i in range(commands[cmd]>>6)) + Fore.RESET
+    syntax = Fore.CYAN + name + ''.join(' '+chr(97+i) for i in range(commands[cmd]>>9)) + Fore.RESET
     types = []
-    for i in range(commands[cmd]>>6):
-        j = (commands[cmd] & (7 << 3-3*i)) >> 3-3*i
+    for i in range(commands[cmd]>>9):
+        j = (commands[cmd] & (7 << 6-3*i)) >> 6-3*i
         if j == 3 and cmd == WRT: j = 4 # special limit for WRT value
         types.append('    | - %s: %s (between 0 and %d)' %(chr(97+i), comments[j], bounds[j]-1))
     cycles = '' if multiple[cmd] == 1 else Fore.YELLOW + '\nTakes %d cycles' %multiple[cmd] + Fore.RESET
@@ -83,7 +83,7 @@ def _help(cmd):
     print("""\n%sHelp on command %s (code %d):%s
   %s%s
   Syntax: %s
-  Arguments:%s\n""" %(Fore.CYAN, name, cmd-100, Fore.RESET, explanation[cmd], cycles, syntax, types))
+  Arguments:%s\n""" %(Fore.CYAN, name, cmd-1000, Fore.RESET, explanation[cmd], cycles, syntax, types))
 
 def is_cmd(word):
     return word == '.def' or len(word) == 3 and word.upper() in gl
@@ -94,7 +94,7 @@ def get_cmd_name(cmd):
 
 def atline():
     l = file_lines[line-1]
-    return '\nAt line %d: "%s%s"' %(line, l[:50], '...' if len(l) > 50 else '')
+    return '. At line %d: "%s%s"' %(line, l[:30], '...' if len(l) > 30 else '')
 
 def _bin(n, bits):
     s = ''
@@ -126,13 +126,14 @@ Type defines the (excluded) upper bound:
   - 3: WORDSIZE
   - 4: WRTLIMIT
   - 5: ROMSIZE
+  - 6: 2
 Correct value means:
   - numeric
   - in bounds (not mandatory, warns)"""
     if not value: return False
     if not value.isnumeric(): return False
     if int(value) >= bounds[type] and show_warnings:
-        print(Fore.RED+'WARNING: %s %s is out of bounds (>= %d)' %(comments[type], value, bounds[type]))
+        print(Fore.RED+'WARNING: %s %s is out of bounds (>= %d).' %(comments[type], value, bounds[type]))
     return True
 
 def export(file):
@@ -195,15 +196,15 @@ def export(file):
                 remaining = 2
             elif word[-1] == ':': # jump point
                 if not correct_var(word[:-1]):
-                    raise ValueError('Incorrect jump point name'+atline())
+                    raise ValueError(Fore.RED+'Incorrect jump point name'+atline())
                 points[word[:-1]] = len(program)
             else:
                 if not is_cmd(word):
-                    raise NotImplementedError('Unknown command: '+word+atline())
+                    raise NotImplementedError(Fore.RED+'Unknown command: '+word+atline())
                 cmd = gl[word.upper()]
                 if cmd == END: end = True
                 current = [cmd, []]
-                remaining = commands[cmd]>>6
+                remaining = commands[cmd]>>9
                 if not remaining: # command with no arguments
                     program.append(current)
                     program_lines.append(line)
@@ -211,16 +212,15 @@ def export(file):
             if current[0] == '.def':
                 if remaining == 2:
                     if not correct_var(word):
-                        raise ValueError('Incorrect variable name: '+word+atline())
+                        raise ValueError(Fore.RED+'Incorrect variable name: '+word+atline())
                     current[1] = word
                 elif remaining == 1:
                     if not correct_value(word, 0):
-                        raise ValueError('Incorrect value: '+word+atline())
+                        raise ValueError(Fore.RED+'Incorrect value: '+word+atline())
                     vars[current[1]] = int(word)
             elif is_cmd(word):
                 name = get_cmd_name(current[0])
-                raise AttributeError('Not enough arguments for "%s": \
-expected %d, got %d%s' %(name, commands[current[0]]>>6, len(current[1]), atline()))
+                raise AttributeError(Fore.RED+'Not enough arguments for "%s": expected %d, got %d%s' %(name, commands[current[0]]>>9, len(current[1]), atline()))
             else:
                 # no value check, wait till all variables are loaded
                 current[1].append(word)
@@ -229,11 +229,11 @@ expected %d, got %d%s' %(name, commands[current[0]]>>6, len(current[1]), atline(
                     program_lines.append(line)
             remaining -= 1
     print(Fore.GREEN+'[Done]')
-    if remaining: raise EOFError('Unexpected end of file')
+    if remaining: raise EOFError(Fore.RED+'Unexpected end of file.')
     if len(program) > ROMSIZE:
-        raise MemoryError('Out of program memory (%d/%d)' %(len(program), ROMSIZE))
+        raise MemoryError(Fore.RED+'Out of program memory (%d/%d).' %(len(program), ROMSIZE))
     if not end and show_warnings:
-        print(Fore.RED+'WARNING: No END instruction detected')
+        print(Fore.RED+'WARNING: No END instruction detected.')
     print('%d variables, %d jump points' %(len(list(vars.keys())), len(list(points.keys()))))
 
     print('\nHandling variables...')
@@ -249,12 +249,12 @@ expected %d, got %d%s' %(name, commands[current[0]]>>6, len(current[1]), atline(
                 ok = True
                 args[i] = vars[a]
             else:
-                t = (commands[cmd] & (7 << 3-3*i)) >> 3-3*i
+                t = (commands[cmd] & (7 << 6-3*i)) >> 6-3*i
                 if t == 3 and cmd == WRT: t = 4
                 if correct_value(a, t):
                     ok = True
                     args[i] = int(a)
-            if not ok: raise ValueError('Incorrect value: '+a+atline())
+            if not ok: raise ValueError(Fore.RED+'Incorrect value: '+a+atline())
     print(Fore.GREEN+'[Done]')
 
     print('\nChecking parallel code execution...')
@@ -287,10 +287,12 @@ expected %d, got %d%s' %(name, commands[current[0]]>>6, len(current[1]), atline(
         elif cmd in (LSH, RSH, NOT): p[1] = [0, args[0]]
         elif cmd in (JPI, JMP): p[1] = [args[0]>>5<<2, args[0]&31]
         elif cmd in (DIV, MOD): p[1] = [args[1], args[0]]
+        elif cmd == BIT: p[1] = [args[0], (args[1]*2 & 14) + (args[2]&1)]
+        elif cmd == CBF: p[1] = [args[0], args[1]*2 & 14]
         elif not args: p[1] = [0, 0]
         if show_code: print('%s %s %s' %(get_cmd_name(cmd), _bin(p[1][0], 5), _bin(p[1][1], 5)), j)
         j += 1
-        data += _bin(cmd-100, 6)+_bin(p[1][0], 5)+_bin(p[1][1], 5)
+        data += _bin(cmd-1000, 6)+_bin(p[1][0], 5)+_bin(p[1][1], 5)
     print(Fore.GREEN+'[Done]')
 
     print('\nExporting to schematic...')
@@ -322,7 +324,7 @@ expected %d, got %d%s' %(name, commands[current[0]]>>6, len(current[1]), atline(
     used = round(len(program)/ROMSIZE*100)
     print('\nProgram takes %d instructions' %len(program))
     print('ROM used: %d/%d bytes (%d%%), %d%% free' %(len(program)<<1, ROMSIZE<<1, used, 100-used))
-    print(Fore.RED+'Make sure to paste with non-air with Litematica')
+    print(Fore.RED+'Make sure to paste with non-air with Litematica.')
 
 # read options from file
 minecraft_folder = join(getenv('appdata'), '.minecraft')
@@ -337,6 +339,7 @@ if exists('options.txt'):
                 elif i == 3: colors = int(line)
                 else: break
         except: print('Error loading options')
+else: print('Created options file')
 
 def save_options():
     with open('options.txt', 'w') as f:
@@ -350,6 +353,15 @@ def initcolors():
             raise ImportError('colorama failed to load. Consider downloading it or using -c')
         init(autoreset=True)
 save_options()
+
+if False: # enable this while debugging
+    colors = False
+    show_code = True
+    argv = []
+    for i in range(1000, 1032):
+        if i != 1019:
+            _help(i)
+    export('scripts/addtest.ass2')
 
 # get command line arguments
 argv.pop(0)
@@ -389,7 +401,7 @@ else:
             if not code: print('Success')
             save_options()
         else:
-            if not exists(argv[0]): raise FileNotFoundError
+            if not exists(argv[0]) and isfile(argv[0]): raise FileNotFoundError(Fore.RED+'file '+argv[0]+' does not exist.')
             current = -1
             for i in range(1, len(argv)): # set temporary options
                 if i&1: # get option to set
