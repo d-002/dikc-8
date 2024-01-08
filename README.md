@@ -1,4 +1,4 @@
-#dikc-8
+# dikc-8
 
 ## Repository for both DIKC-8 and DIKC-8 2 Minecraft CPUs.
 
