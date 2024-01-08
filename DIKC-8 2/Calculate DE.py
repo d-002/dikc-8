@@ -1,6 +1,6 @@
 # DE: DIKC-8 equivalent.
 # Way of completely subjectively estimate the computing power of a CPU,
-# relatively to the DIKC-8. Even works with IRL CPUs.
+# relatively to the DIKC-8. This should work for IRL CPUs.
 
 def askb(text):
     while 1:
