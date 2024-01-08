@@ -5,6 +5,11 @@ Major changes and optimizations done, for almost every part of the CPU.
 
 ### See trailer on YouTube [upcoming]
 
+## Calculate DE
+"DE": "DIKC-8 equivalent".
+This is my way of completely subjectively estimate the computing power of a CPU, relatively to the DIKC-8. The DIKC-8's DE is 1.
+This should work for IRL CPUs.
+
 ## `ass2` extension and language
 
 This is an assembly language, with the ability to easily convert into a [schematic](https://www.curseforge.com/minecraft/mc-mods/litematica) and import into the CPU's ROM.
