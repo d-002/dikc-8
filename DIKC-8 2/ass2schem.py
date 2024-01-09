@@ -20,8 +20,7 @@ commands = {WRT: 1120, CPY: 1096, BIT: 1630, SDB:  512, SCB: 1112, DBF:  512,
             MUL: 1096, DIV: 1096, MOD: 1096, END:    0, NOP:    0, PUS:    0,
             POP:    0}
 # instructions that take multiple cycles
-multiple = {EQU: 2, MOR: 2, LES: 2, LSH: 2, RSH: 2, SUB: 2, ADD: 2, NOT: 2,
-            ORR: 2, AND: 2, XOR: 2, JPI: 2, JMP: 2, MUL: 3, DIV: 3, MOD: 3}
+multiple = {JPI: 2, JMP: 2, MUL: 2, DIV: 3, MOD: 3}
 for i in range(1000, 1033):
     if i != 19 and i not in multiple: multiple[i] = 1
 # instructions that can FOR SURE run in parallel
@@ -133,7 +132,7 @@ Correct value means:
     if not value: return False
     if not value.isnumeric(): return False
     if int(value) >= bounds[type] and show_warnings:
-        print(Fore.RED+'WARNING: %s %s is out of bounds (>= %d).' %(comments[type], value, bounds[type]))
+        print(Fore.RED + 'WARNING: %s %s is out of bounds (>= %d).' %(comments[type], value, bounds[type]) + atline())
     return True
 
 def export(file):
@@ -159,10 +158,10 @@ def export(file):
     linebreaks = [] # used to remember raw line index for errors
     for i in range(len(raw)+1):
         if i == len(raw): now = not prev
-        else: now = raw[i].isalnum()
+        else: now = raw[i].isalnum() or raw[i] == '_'
         if now != prev:
             if now:
-                if current in '._': current = ' '+current
+                if current == '.': current = ' '+current
                 else: current += ' '
                 code += current
             else: code += current
@@ -183,6 +182,7 @@ def export(file):
     remaining = 0 # remaining arguments for this instruction
     i = 0
     end = False
+    print(linebreaks)
     for word in code.split(' '):
         i += len(word)+1
         line = 1
@@ -237,24 +237,30 @@ def export(file):
     print('%d variables, %d jump points' %(len(list(vars.keys())), len(list(points.keys()))))
 
     print('\nHandling variables...')
+    i = 0
     for cmd, args in program:
-        for i in range(len(args)):
-            a = args[i]
-            ok = False
+        line = program_lines[i]
+        i += 1
+        for j in range(len(args)):
+            a = args[j]
             if cmd in (JPI, JMP):
                 if a in points:
-                    ok = True
-                    args[i] = points[a]
+                    error = 0
+                    args[j] = points[a]
+                else: error = 1
             elif a in vars:
-                ok = True
-                args[i] = vars[a]
+                error = 0
+                args[j] = vars[a]
             else:
-                t = (commands[cmd] & (7 << 6-3*i)) >> 6-3*i
+                t = (commands[cmd] & (7 << 6-3*j)) >> 6-3*j
                 if t == 3 and cmd == WRT: t = 4
                 if correct_value(a, t):
-                    ok = True
-                    args[i] = int(a)
-            if not ok: raise ValueError(Fore.RED+'Incorrect value: '+a+atline())
+                    error = 0
+                    args[j] = int(a)
+                else: error = 2
+            if error:
+                e = 'Incorrect program pointer' if error == 1 else 'Unknown value'
+                raise ValueError(Fore.RED + '%s: "%s".' %(e, a) + atline())
     print(Fore.GREEN+'[Done]')
 
     print('\nChecking parallel code execution...')
@@ -280,7 +286,7 @@ def export(file):
     print('\nFormatting into machine code...')
     # add 0s for 0 and 1 argument instructions, split into 5-bit arguments
     data = ''
-    j = 0
+    i = 0
     for p in program:
         cmd, args = p
         if cmd in (DBF, ABF): p[1] = [args[0], 0]
@@ -289,9 +295,10 @@ def export(file):
         elif cmd in (DIV, MOD): p[1] = [args[1], args[0]]
         elif cmd == BIT: p[1] = [args[0], (args[1]*2 & 14) + (args[2]&1)]
         elif cmd == CBF: p[1] = [args[0], args[1]*2 & 14]
+        elif cmd == SDB: p[1] = [args[0]>>3, (args[0]&7)<<2]
         elif not args: p[1] = [0, 0]
-        if show_code: print('%s %s %s' %(get_cmd_name(cmd), _bin(p[1][0], 5), _bin(p[1][1], 5)), j)
-        j += 1
+        if show_code: print('%s %s %s' %(get_cmd_name(cmd), _bin(p[1][0], 5), _bin(p[1][1], 5)), i)
+        i += 1
         data += _bin(cmd-1000, 6)+_bin(p[1][0], 5)+_bin(p[1][1], 5)
     print(Fore.GREEN+'[Done]')
 
@@ -324,7 +331,7 @@ def export(file):
     used = round(len(program)/ROMSIZE*100)
     print('\nProgram takes %d instructions' %len(program))
     print('ROM used: %d/%d bytes (%d%%), %d%% free' %(len(program)<<1, ROMSIZE<<1, used, 100-used))
-    print(Fore.RED+'Make sure to paste with non-air with Litematica.')
+    print(Fore.CYAN+'Make sure to paste with non-air with Litematica.')
 
 # read options from file
 minecraft_folder = join(getenv('appdata'), '.minecraft')
@@ -345,14 +352,16 @@ def save_options():
     with open('options.txt', 'w') as f:
         f.write('\n'.join((minecraft_folder, '%d' %show_warnings, '%d' %show_code, '%d' %colors)))
 def initcolors():
-    global Fore
+    global Fore, is_init
     if colors:
         try:
             from colorama import init, Fore
         except:
             raise ImportError('colorama failed to load. Consider downloading it or using -c')
+        is_init = True
         init(autoreset=True)
 save_options()
+is_init = False
 
 if False: # enable this while debugging
     colors = False
@@ -387,7 +396,8 @@ else:
         if argv[0] == '-h':
             initcolors()
             if len(argv) == 2:
-                if argv[1] in gl: _help(gl[argv[1]])
+                cmd = argv[1].upper().strip()
+                if cmd in gl: _help(gl[cmd])
                 else: _help(-1)
             else: code = 1
         elif argv[0] == '-d':
@@ -418,6 +428,8 @@ else:
                         initcolors()
                     current = -1
             if current != -1: code = 5
-            if not code: export(argv[0])
+            if not code:
+                if not is_init: initcolors()
+                export(argv[0])
     else: code = 6
     if code: raise SyntaxError('The syntax of the command is incorrect. Error code: %d' %code)
