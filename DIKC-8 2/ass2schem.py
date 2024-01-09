@@ -182,7 +182,6 @@ def export(file):
     remaining = 0 # remaining arguments for this instruction
     i = 0
     end = False
-    print(linebreaks)
     for word in code.split(' '):
         i += len(word)+1
         line = 1
@@ -276,9 +275,9 @@ def export(file):
                 a, b = get_cmd_name(r[0]), get_cmd_name(cmd)
                 if cmd in parallel:
                     if cmd != NOP:
-                        print('  | %sNoticed overlap between %s and %s at line %d' %(Fore.YELLOW, a, b, line))
+                        print('  | %sNoticed overlap between %s and %s at line %d' %(Fore.CYAN, a, b, line))
                 elif show_warnings:
-                    print('%sWARNING: Possible conflict between instructions %s (%d cycles remaining) and %s%s' %(Fore.RED, a, r[1], b, atline()))
+                    print('%sWARNING: Possible conflict between instructions %s (%d cycles remaining) and %s%s' %(Fore.YELLOW, a, r[1], b, atline()))
         for d in done: running.remove(d)
         running.append([cmd, multiple[cmd]])
     print(Fore.GREEN+'[Done]')
