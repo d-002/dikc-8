@@ -1,6 +1,6 @@
 # dikc-8
 
-## Repository for both DIKC-8 and DIKC-8 2 Minecraft CPUs.
+## DIKC-8 and DIKC-8 2 Minecraft CPUs utilities
 
 The subfolders both contain python utilities to create and import programs, a link to a YouTube trailer, and a world download.
 
