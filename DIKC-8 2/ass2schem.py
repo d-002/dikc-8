@@ -9,6 +9,10 @@ from sys import argv, stderr
 class Fore:
     RED = YELLOW = GREEN = CYAN = RESET = ''
 
+def bin_n(d, n):
+    s = str(bin(d))[2:]
+    return '0'*(n-len(s)) + s
+
 # commands start at index 0, but I added 1000 to avoid conflicts with global bool values
 WRT,CPY,BIT,SDB,SCB,DBF,ABF,CBF,EQU,MOR,LES,LSH,RSH,SUB,ADD,NOT,ORR,AND,XOR,JPI,JMP,OUT,OUP,INN,MUL,DIV,MOD,END,NOP,PUS,POP = list(range(1000, 1019))+list(range(1020, 1032))
 gl = globals()
@@ -20,12 +24,12 @@ commands = {WRT: 1120, CPY: 1096, BIT: 1630, SDB:  512, SCB: 1112, DBF:  512,
             MUL: 1096, DIV: 1096, MOD: 1096, END:    0, NOP:    0, PUS:    0,
             POP:    0}
 # instructions that take multiple cycles
-multiple = {JPI: 2, JMP: 2, MUL: 2, DIV: 3, MOD: 3}
+multiple = {JPI: 2, JMP: 2, MUL: 2, DIV: 3, MOD: 3, POP: 2}
 for i in range(1000, 1033):
     if i != 19 and i not in multiple: multiple[i] = 1
 # instructions that can FOR SURE run in parallel
 # (others: only show a warning because may still work)
-parallel = [WRT, CPY, BIT, SDB, SCB, DBF, JMP, OUT, OUP, INN, END, NOP, PUS, POP]
+parallel = [WRT, CPY, BIT, SDB, SCB, DBF, JMP, OUT, OUP, INN, END, NOP, PUS]
 explanation = {
     WRT: 'Writes 5-bit value to register',
     CPY: 'Copies register a to register b',
@@ -56,7 +60,7 @@ explanation = {
     MOD: 'Puts a%b into ALU buffer',
     END: 'Stops the program\'s execution',
     NOP: 'Stalls for one cycle',
-    PUS: 'Push the current program counter value into the call stack',
+    PUS: 'Push the current program counter value + 2 into the call stack (basically PUS; JMP; [store this])',
     POP: 'Put the latest (default 0) call stack value into the program counter'
 }
 MAXINT = 256
@@ -79,10 +83,12 @@ def _help(cmd):
         types.append('    | - %s: %s (between 0 and %d)' %(chr(97+i), comments[j], bounds[j]-1))
     cycles = '' if multiple[cmd] == 1 else Fore.YELLOW + '\nTakes %d cycles' %multiple[cmd] + Fore.RESET
     types = '\n'+'\n'.join(types) if types else ' [no arguments]'
-    print("""\n%sHelp on command %s (code %d):%s
-  %s%s
+    dec = cmd-1000
+    bin = bin_n(dec, 6)
+    print("""\n%sHelp on command %s (code %d, or %s):%s%s
+  %s
   Syntax: %s
-  Arguments:%s\n""" %(Fore.CYAN, name, cmd-1000, Fore.RESET, explanation[cmd], cycles, syntax, types))
+  Arguments:%s\n""" %(Fore.CYAN, name, dec, bin, cycles, Fore.RESET, explanation[cmd], syntax, types))
 
 def is_cmd(word):
     return word == '.def' or len(word) == 3 and word.upper() in gl
@@ -277,7 +283,7 @@ def export(file):
                     if cmd != NOP:
                         print('  | %sNoticed overlap between %s and %s at line %d' %(Fore.CYAN, a, b, line))
                 elif show_warnings:
-                    print('%sWARNING: Possible conflict between instructions %s (%d cycles remaining) and %s%s' %(Fore.YELLOW, a, r[1], b, atline()))
+                    print('%sWARNING: Possible conflict between instructions %s (%d cycle(s) remaining) and %s%s' %(Fore.YELLOW, a, r[1], b, atline()))
         for d in done: running.remove(d)
         running.append([cmd, multiple[cmd]])
     print(Fore.GREEN+'[Done]')
@@ -286,17 +292,19 @@ def export(file):
     # add 0s for 0 and 1 argument instructions, split into 5-bit arguments
     data = ''
     i = 0
+    if show_code: print(Fore.CYAN+'\nOP   code  arg1  arg2   #instr')
     for p in program:
         cmd, args = p
         if cmd in (DBF, ABF): p[1] = [args[0], 0]
         elif cmd in (LSH, RSH, NOT): p[1] = [0, args[0]]
+        elif cmd == SDB: p[1] = [args[0]>>5, args[0]&31]
         elif cmd in (JPI, JMP): p[1] = [args[0]>>5<<2, args[0]&31]
         elif cmd in (DIV, MOD): p[1] = [args[1], args[0]]
         elif cmd == BIT: p[1] = [args[0], (args[1]*2 & 14) + (args[2]&1)]
         elif cmd == CBF: p[1] = [args[0], args[1]*2 & 14]
-        elif cmd == SDB: p[1] = [args[0]>>3, (args[0]&7)<<2]
         elif not args: p[1] = [0, 0]
-        if show_code: print('%s %s %s' %(get_cmd_name(cmd), _bin(p[1][0], 5), _bin(p[1][1], 5)), i)
+        if show_code:
+            print('%s %s %s %s ' %(get_cmd_name(cmd), _bin(cmd-1000, 6), _bin(p[1][0], 5), _bin(p[1][1], 5)), i)
         i += 1
         data += _bin(cmd-1000, 6)+_bin(p[1][0], 5)+_bin(p[1][1], 5)
     print(Fore.GREEN+'[Done]')
@@ -384,7 +392,7 @@ if not len(argv): # no arguments: display help
     [-f] file      Export "file" to schematic (e.g. py ass2schem myfile.ass2)
     -h command     Display instruction help (e.g. py ass2schem -h WRT)
     -d arg value   Set default value for argument to value (value: 0/1)
-    -m path        Path to minecraft .minecraft folder
+    -m path        Set path to minecraft .minecraft folder
     -w value       Display warnings
     -p value       Display program code
     -c value       Use colors""" %(Fore.CYAN, Fore.RESET, Fore.CYAN, Fore.RESET))
