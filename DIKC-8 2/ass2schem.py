@@ -302,6 +302,7 @@ def export(file):
         elif cmd in (DIV, MOD): p[1] = [args[1], args[0]]
         elif cmd == BIT: p[1] = [args[0], (args[1]*2 & 14) + (args[2]&1)]
         elif cmd == CBF: p[1] = [args[0], args[1]*2 & 14]
+        elif cmd == SUB: p[1] = [args[1], args[0]] # SUB has inverted inputs
         elif not args: p[1] = [0, 0]
         if show_code:
             print('%s %s %s %s ' %(get_cmd_name(cmd), _bin(cmd-1000, 6), _bin(p[1][0], 5), _bin(p[1][1], 5)), i)

@@ -1,0 +1,29 @@
+int number = 69;
+int x = 2;
+
+bool continue = 1;
+bool prime = 1;
+bool end = 0;
+
+while (continue) {
+	int x2 = number/x;
+	if (x2 <= x) {
+		end = 1; // stop when reached sqrt(number)
+	}
+
+	if (x2*x == number) {
+		// found a divider
+		prime = 0;
+	}
+
+	// check if need to continue searching
+	continue = 1^end & prime;
+	x = x+1;
+}
+
+if (prime) {
+	lightPixel(0, 0);
+}
+if (1^prime) { // XOR: not
+	lightPixel(1, 0);
+}

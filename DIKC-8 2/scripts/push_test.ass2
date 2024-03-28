@@ -1,0 +1,27 @@
+;also test JPI which seems broken
+
+.def i 0
+.def one 1
+wrt i 2
+wrt one 1
+
+scb one 0
+jpi a
+nop
+end
+
+a:
+pus
+nop
+sub i one; repeat until i is 0
+abf i
+equ i 15
+jpi b
+nop
+pop
+
+b:
+nop
+nop
+nop
+end

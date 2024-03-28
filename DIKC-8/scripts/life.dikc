@@ -1,0 +1,65 @@
+bool true = 1;
+// 4x8 screen (not that much space)
+int boardA = 167;
+int boardB = 40;
+int boardC = 10;
+int boardD = 9;
+
+while (true) {
+	// draw board
+	int div = 128;
+	int x = undefined;
+	int y = 0;
+	
+	int boardATemp = 0;
+	int boardBTemp = 0;
+	int boardCTemp = 0;
+	int boardDTemp = 0;
+	while (div > 0) {
+		x = 0;
+		// get nth bit for pixel of y n
+		// got to do this manually for each x though
+		if (boardA/div*div-boardATemp == div) {
+			boardATemp = boardATemp+div;
+			lightPixel(x, y);
+		}
+		x = x+1;
+		if (boardB/div*div-boardBTemp == div) {
+			boardBTemp = boardBTemp+div;
+			lightPixel(x, y);
+		}
+		x = x+1;
+		if (boardC/div*div-boardCTemp == div) {
+			boardCTemp = boardCTemp+div;
+			lightPixel(x, y);
+		}
+		x = x+1;
+		if (boardD/div*div-boardDTemp == div) {
+			boardDTemp = boardDTemp+div;
+			lightPixel(x, y);
+		}
+		div = div/2;
+		y = y+1;
+	}
+
+	// tick
+	// reuse variables because of limited space
+
+	int neigh = undefined;
+	y = 0;
+	div = 128;
+	while (y < 8) {
+		neigh = 0;
+		if (neigh < 2) {
+			if (boardA/div*div == divdfkjsdhfjgbhj not enough space
+		}
+		div = div/2;
+		y = y+1;
+	}
+
+	// update
+	boardA = boardATemp;
+	boardB = boardBTemp;
+	boardC = boardCTemp;
+	boardD = boardDTemp;
+}

@@ -1,0 +1,8 @@
+int x = 0;
+
+while (x < 16) {
+	int a = x-8;
+	int y = x*x*x/20;
+	lightPixel(x, y);
+	x = x+1;
+}

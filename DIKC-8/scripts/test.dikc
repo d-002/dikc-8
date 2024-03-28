@@ -1,0 +1,21 @@
+int a = 2;
+int b = a;
+int c = a+1;
+c = a+b+c;
+
+int z = 0+0+0+0+0+0;
+int y = 3+3+3+3+3;
+
+bool d = 1;
+bool e = d;
+d = 0^d;
+
+if (d&1) {
+	e = d;
+	if (a <= 1+b) {
+		a = b;
+	}
+}
+if (10 >= 10) {
+    e = d;
+}

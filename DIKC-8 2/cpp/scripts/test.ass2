@@ -1,0 +1,10 @@
+.def a 0
+                .def b 1
+
+
+
+.def result           2
+wrt a 5
+wrt b 3
+add a b
+abf result ; move sum to addr 2

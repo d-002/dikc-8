@@ -1,0 +1,68 @@
+; io addresses
+.def call 0 ;i/o address for telling to call new data
+.def io1 1 ;inputted values from external storage
+.def io2 2 ;
+.def io3 3 ;
+.def io4 4 ;
+.def screen_value 5
+.def screen_addr 6
+
+; no jump even if > 0
+
+;rom addresses
+.def i 0 ;external storage counter
+.def j 1 ;screen address counter
+.def stop 2
+.def zero 3
+.def one 4
+.def filter 5 ;for j%32
+.def buffer 6 ;buffer for screen values
+
+oup i call ;first call, leave time to external storage
+
+;/!\ i, j and zero should be at 0 on startup
+;make sure to reset the cpu otherwise
+wrt one 1
+;;wrt filter 31
+sdb 32 ;stop after _/8 frames
+dbf stop
+
+main:
+	; write to corresponding screen addresses
+	inn buffer io1
+	out buffer screen_value
+	out j screen_addr
+	add j one
+	abf j
+	inn buffer io2
+	out buffer screen_value
+	out j screen_addr
+	add j one
+	abf j
+	inn buffer io3
+	out buffer screen_value
+	out j screen_addr
+	add j one
+	abf j
+	inn buffer io4
+	out buffer screen_value
+	out j screen_addr
+	add j one
+	abf j
+
+	; refresh if needed (every 8 iterations)
+	;;and j filter
+	;;abf j
+	;;mor j zero
+	;;jpi skip
+	;;nop
+	;;skip:
+
+	; increment i
+	add i one
+	abf i
+	oup i call ;call the external storage now to leave it some time
+	les i stop; stop after the given amount of frames
+	jpi main
+	nop
+end

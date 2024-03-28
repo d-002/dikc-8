@@ -1,0 +1,6 @@
+LDI 3 4
+LDI 2 2
+LDI 0 1
+ADD 0 2 1
+MUL 2 3 0
+END

@@ -1,8 +1,8 @@
-# DIKC-8
+# dikc-8
 
-Python utilities and DIKC-8 world download
+Python utilities and DIKC-8 schematic
 
-### Recommended: [watch this video](https://youtu.be/G53FWyzu7fc) before doing anything
+### Recommended: watch this video before doing anything: https://youtu.be/G53FWyzu7fc
 
 ## Languages recommendations
 <details>

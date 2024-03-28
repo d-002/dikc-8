@@ -1,0 +1,26 @@
+.def a = 0
+.def b = 1
+.def c = 2
+
+.def i = 3
+.def one = 4
+.def stop = 5
+WRT b, 1
+WRT one, 1
+WRT stop, 10
+
+loop:
+  ADD a, b ; store a+b in c
+  NOP
+  ABF c
+  CPY b, a ; move numbers around
+  CPY c, b ;
+
+  ADD i, one ;increment counter
+  NOP
+  ABF i
+  LES i, stop ;check if reached stop-th term
+  NOP
+  JPI loop ;repeat if not
+  NOP
+END

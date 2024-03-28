@@ -1,0 +1,34 @@
+int x = 0;
+int y = undefined;
+
+while (x < 16) {
+	y = 0;
+	while (y < 8) {
+		int cr = x-12;
+		int zr = cr;
+		int zi = y;
+		int s = 0;
+		int n = 1;
+
+		while (n < 13) {
+			if (s >= 160) {
+				n = 13;
+			}
+			int zi2 = zi*zi;
+			int zrTemp = zr*zr-zi2/8+cr;
+			zi = zr*zi/4+y;
+			zr = zrTemp;
+			zi2 = zi*zi;
+			s = zr*zr+zi2;
+			n = n+1;
+		}
+
+		if (n == 13) {
+			lightPixel(x, y+8);
+			lightPixel(x, 8-y);
+		}
+
+		y = y+1;
+	}
+	x = x+1;
+}

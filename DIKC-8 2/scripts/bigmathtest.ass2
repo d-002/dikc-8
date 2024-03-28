@@ -1,0 +1,7 @@
+wrt 0 23
+wrt 1 4
+div 0 1
+nop
+nop
+abf 2
+end
