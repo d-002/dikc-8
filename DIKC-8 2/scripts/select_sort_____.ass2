@@ -33,7 +33,7 @@ start:
   les i eight
   jpi start
 
-end
+hlt
 
 
 swap: ;switch addresses a and b, then callback

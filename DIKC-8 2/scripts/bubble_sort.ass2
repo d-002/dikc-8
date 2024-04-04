@@ -80,7 +80,7 @@ start:
   jpi start
   nop
 
-end
+hlt
 
 display: ;then callback
   out 0 0

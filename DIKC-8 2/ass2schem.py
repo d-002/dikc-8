@@ -14,14 +14,14 @@ def bin_n(d, n):
     return '0'*(n-len(s)) + s
 
 # commands start at index 0, but I added 1000 to avoid conflicts with global bool values
-WRT,CPY,BIT,SDB,SCB,DBF,ABF,CBF,EQU,MOR,LES,LSH,RSH,SUB,ADD,NOT,ORR,AND,XOR,JPI,JMP,OUT,OUP,INN,MUL,DIV,MOD,END,NOP,PUS,POP = list(range(1000, 1019))+list(range(1020, 1032))
+WRT,CPY,BIT,SDB,SCB,DBF,ABF,CBF,EQU,MOR,LES,LSH,RSH,SUB,ADD,NOT,ORR,AND,XOR,JPI,JMP,OUT,OUP,INN,MUL,DIV,MOD,HLT,NOP,PUS,POP = list(range(1000, 1019))+list(range(1020, 1032))
 gl = globals()
 # values: 16*(number of arguments) + 4^n * (type of argument n)
 commands = {WRT: 1120, CPY: 1096, BIT: 1630, SDB:  512, SCB: 1112, DBF:  512,
             ABF:  512, CBF: 1112, EQU: 1096, MOR: 1096, LES: 1096, LSH:  576,
             RSH:  576, SUB: 1096, ADD: 1096, NOT:  576, ORR: 1096, AND: 1096,
             XOR: 1096, JPI:  832, JMP:  832, OUT: 1104, OUP: 1104, INN: 1104,
-            MUL: 1096, DIV: 1096, MOD: 1096, END:    0, NOP:    0, PUS:    0,
+            MUL: 1096, DIV: 1096, MOD: 1096, HLT:    0, NOP:    0, PUS:    0,
             POP:    0}
 # instructions that take multiple cycles
 multiple = {JPI: 2, JMP: 2, MUL: 2, DIV: 3, MOD: 3, POP: 2}
@@ -29,7 +29,7 @@ for i in range(1000, 1033):
     if i != 19 and i not in multiple: multiple[i] = 1
 # instructions that can FOR SURE run in parallel
 # (others: only show a warning because may still work)
-parallel = [WRT, CPY, BIT, SDB, SCB, DBF, JMP, OUT, OUP, INN, END, NOP, PUS]
+parallel = [WRT, CPY, BIT, SDB, SCB, DBF, JMP, OUT, OUP, INN, HLT, NOP, PUS]
 explanation = {
     WRT: 'Writes 5-bit value to register',
     CPY: 'Copies register a to register b',
@@ -58,7 +58,7 @@ explanation = {
     MUL: 'Puts a*b into ALU buffer',
     DIV: 'Puts a/b (integer division) into ALU buffer',
     MOD: 'Puts a%b into ALU buffer',
-    END: 'Stops the program\'s execution',
+    HLT: 'Stops the program\'s execution',
     NOP: 'Stalls for one cycle',
     PUS: 'Push the current program counter value + 2 into the call stack (basically PUS; JMP; [store this])',
     POP: 'Put the latest (default 0) call stack value into the program counter'
@@ -207,7 +207,7 @@ def export(file):
                 if not is_cmd(word):
                     raise NotImplementedError(Fore.RED+'Unknown command: '+word+atline())
                 cmd = gl[word.upper()]
-                if cmd == END: end = True
+                if cmd == HLT: end = True
                 current = [cmd, []]
                 remaining = commands[cmd]>>9
                 if not remaining: # command with no arguments
@@ -238,7 +238,7 @@ def export(file):
     if len(program) > ROMSIZE:
         raise MemoryError(Fore.RED+'Out of program memory (%d/%d).' %(len(program), ROMSIZE))
     if not end and show_warnings:
-        print(Fore.RED+'WARNING: No END instruction detected.')
+        print(Fore.RED+'WARNING: No HLT instruction detected.')
     print('%d variables, %d jump points' %(len(list(vars.keys())), len(list(points.keys()))))
 
     print('\nHandling variables...')

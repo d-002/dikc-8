@@ -4,4 +4,4 @@ div 0 1
 nop
 nop
 abf 2
-end
+hlt

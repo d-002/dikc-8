@@ -4,4 +4,4 @@ wrt 2 0
 out 0 1
 oup 1 2
 inn 2 3
-end
+hlt

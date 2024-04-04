@@ -24,4 +24,4 @@ b:
 nop
 nop
 nop
-end
+hlt

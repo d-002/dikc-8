@@ -11,4 +11,4 @@ nop
 abf result ; move sum to addr 2
 cbf 0 9
 bit 0 3 1
-end
+hlt

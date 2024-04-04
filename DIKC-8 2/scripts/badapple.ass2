@@ -65,4 +65,4 @@ main:
 	les i stop; stop after the given amount of frames
 	jpi main
 	nop
-end
+hlt
