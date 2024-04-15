@@ -1,4 +1,4 @@
-# dikc-8
+# DIKC-8
 
 Python utilities and DIKC-8 schematic
 
