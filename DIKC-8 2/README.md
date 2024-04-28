@@ -7,8 +7,8 @@ Major changes and optimizations done, for almost every part of the CPU.
 
 ## Calculate DE
 "DE": "DIKC-8 equivalent".
-This is my way of completely subjectively estimate the computing power of a CPU, relatively to the DIKC-8. The DIKC-8's DE is 1.
-This should work for IRL CPUs.
+This is my way to completely subjectively estimate the computing power of a CPU, relatively to the DIKC-8. The DIKC-8's DE is 1.
+This should work for IRL CPUs, with, again, a lot of very arbitrary settings.
 
 ## `ass2` extension and language
 
