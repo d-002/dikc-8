@@ -288,10 +288,10 @@ Takes 3 cycles
     | - b: Address (between 0 and 31)
 ```
 
-## END (code 28):
+## HLT (code 28):
 ```
 Stops the program's execution
-  Syntax: END
+  Syntax: HLT
   Arguments: [no arguments]
 ```
 
