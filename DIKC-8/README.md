@@ -6,7 +6,7 @@ Python utilities and DIKC-8 schematic
 
 ## Languages recommendations
 <details>
-  <summary><h3>DIKC language</h3></summary>
+  <summary><strong>DIKC language</strong></summary>
   
 1. **Instructions**
    - int var = value/var (initialize new int variable to `value` or value of variable `var`)
@@ -28,7 +28,7 @@ Python utilities and DIKC-8 schematic
 </details>
 
 <details>
-  <summary><h3>ASS language</h3></summary>
+  <summary><strong>ASS language</strong></summary>
 
 1. **Instructions**
    - LDI a value (set value of int at address `a` to `value`)
