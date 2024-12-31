@@ -1,7 +1,7 @@
 # TODO: fix thing with 3 arguments for bit changes
 # TODO: add all help
 
-from os import getenv, makedirs
+from os import getenv, makedirs, name
 from os.path import splitext, basename, join, exists, isfile
 from litemapy import Schematic, Region, BlockState
 from sys import argv, stderr
@@ -418,10 +418,9 @@ def export(file):
     print('ROM used: %d/%d bytes (%d%%), %d%% free' %(len(program)<<1, ROMSIZE<<1, used, 100-used))
     print(Fore.CYAN+'Make sure to paste with non-air with Litematica.')
 
-# read options from file
-minecraft_folder = join(getenv('appdata'), '.minecraft')
 show_warnings, show_code, colors = True, False, True
 
+# read options from file
 if exists('options.txt'):
     with open('options.txt') as f:
         try:
@@ -435,7 +434,16 @@ if exists('options.txt'):
         except:
             print('Error loading options')
 else:
-    print('Created options file')
+    print('Non-existing options file, will be created')
+
+    if name == 'nt':
+        minecraft_folder = join(getenv('appdata'), '.minecraft')
+
+    else: # don't want to read the minecraft folder on linux
+        minecraft_folder = '~/.minecraft'
+        print(Fore.RED+'Bruh why you playing mc on linux'+Fore.RESET)
+        print('Couldn\'t find the .minecraft folder, setting to', minecraft_folder)
+        input('Press Enter to proceed')
 
 def save_options():
     with open('options.txt', 'w') as f:
@@ -448,7 +456,7 @@ def initcolors():
         try:
             from colorama import init, Fore
         except:
-            raise ImportError('colorama failed to load. Consider downloading it or using -c')
+            raise ImportError('colorama failed to load. Consider downloading it or using -c 0')
 
         is_init = True
         init(autoreset=True)
