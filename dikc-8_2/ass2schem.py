@@ -394,14 +394,15 @@ def export(file):
     reg = Region(0, 0, 0, 33, 16, 53)
     filename = splitext(basename(file))[0]
     schem = Schematic(name=filename, author='D_00', regions={filename: reg}, lm_version=5)
-    blocks = [BlockState('minecraft:lime_wool'),
-              BlockState('minecraft:redstone_wire')]
+    blocks = [BlockState('minecraft:red_wool'),
+              BlockState('minecraft:redstone_wire'),
+              BlockState('minecraft:lime_wool')] # for unused bytes
 
     i = 0
     for y in range(8):
         for x in range(16):
             for z in range(16):
-                j = 0 if i >= len(data) else data[i] == '1'
+                j = 2 if i >= len(data) else data[i] == '1'
                 add = 0 if z < 6 else 45 if z < 11 else 74
                 mul = 2 if z < 6 else -2
 
