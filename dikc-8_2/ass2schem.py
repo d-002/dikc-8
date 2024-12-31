@@ -405,7 +405,7 @@ def export(file):
                 add = 0 if z < 6 else 45 if z < 11 else 74
                 mul = 2 if z < 6 else -2
 
-                reg.setblock(31 - x*2, y*2, add + z*mul, blocks[j])
+                reg[31 - x*2, y*2, add + z*mul] = blocks[j]
 
                 i += 1
 
