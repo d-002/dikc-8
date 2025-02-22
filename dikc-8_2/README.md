@@ -2,6 +2,7 @@
 
 README for the second iteration of the DIKC-8.  
 Major changes and optimizations done, for almost every part of the CPU.
+Video coming soon(tm).
 
 ### See trailer on YouTube [upcoming]
 
@@ -10,11 +11,53 @@ Major changes and optimizations done, for almost every part of the CPU.
 This is my way to completely subjectively estimate the computing power of a CPU, relatively to the DIKC-8. The DIKC-8's DE is 1.
 This should work for IRL CPUs, with, again, a lot of very arbitrary settings.
 
-## `ass2` extension and language
+## `ass2` file extension and language
 
-This is an assembly language, with the ability to easily convert into a [schematic](https://www.curseforge.com/minecraft/mc-mods/litematica) and import into the CPU's ROM.
+### General
 
-Help for `ass2schem.py`:
+This is an assembly language. Convert code into a [schematic](https://www.curseforge.com/minecraft/mc-mods/litematica) with the assembler (`ass2schem.py`) to import into the CPU's ROM.
+
+### Syntax
+
+One instruction per line. Instruction code, then arguments, separated by:
+- at least one space in between the instruction and the first argument
+- a comma (and possibly spaces) in between the different arguments
+
+Indentation doesn't matter, as well as duplicate spaces
+
+Comments: everything after a semicolon (`;`) is ignored on every line
+
+Example:  
+```ass2
+ADD 0 1 ; add the values in registers 0 and 1 and store in arith. buffer
+```
+
+Defining jump points: just write the label name and a colon (`:`) after it
+
+Example:  
+```ass2
+WRT 0, 0  ; initial count
+WRT 1, 1  ; decrement amount
+WRT 2, 10 ; stop threshold
+loop:
+    ADD 0, 1
+    ABF 0
+    LES 0 2
+    JPI loop
+HLT
+```
+
+Defining variables: `.def name = value`
+
+Example:  
+```ass2
+.def a = 0
+```
+
+On the use of NOP:
+> [!warning] It is your respondibility to use NOP for multiple-cycle instructions. Some instructions can be run in parallel, use this at rouy own risk!
+
+## Help for `ass2schem.py`:
 
 ```
 ass2 to schematic
