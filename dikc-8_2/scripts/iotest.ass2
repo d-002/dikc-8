@@ -1,7 +1,0 @@
-wrt 0 5
-wrt 1 3
-wrt 2 0
-out 0 1
-oup 1 2
-inn 2 3
-hlt

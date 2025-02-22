@@ -82,17 +82,26 @@ bounds = (MAXINT, RAMSIZE, IOSIZE, WORDSIZE, WRTLIMIT, ROMSIZE, 2)
 
 def _help(cmd):
     name = get_cmd_name(cmd)
-    if name is None: raise NotImplementedError('This command does not exist')
+    if name is None:
+        raise NotImplementedError('This command does not exist')
+
     syntax = Fore.CYAN + name + ''.join(' '+chr(97+i) for i in range(commands[cmd]>>9)) + Fore.RESET
     types = []
+
     for i in range(commands[cmd]>>9):
         j = (commands[cmd] & (7 << 6-3*i)) >> 6-3*i
-        if j == 3 and cmd == WRT: j = 4 # special limit for WRT value
+
+        # special limit for WRT value
+        if j == 3 and cmd == WRT:
+            j = 4
+
         types.append('    | - %s: %s (between 0 and %d)' %(chr(97+i), comments[j], bounds[j]-1))
+
     cycles = '' if multiple[cmd] == 1 else Fore.YELLOW + '\nTakes %d cycles' %multiple[cmd] + Fore.RESET
     types = '\n'+'\n'.join(types) if types else ' [no arguments]'
     dec = cmd-1000
     bin = bin_n(dec, 6)
+
     print("""\n%sHelp on command %s (code %d, or %s):%s%s
   %s
   Syntax: %s
@@ -111,9 +120,11 @@ def atline():
 
 def _bin(n, bits):
     s = ''
+
     for _ in range(bits):
         s = str(n&1) + s
         n >>= 1
+
     return s
 
 def correct_var(var):
@@ -124,40 +135,52 @@ Correct variable means:
   - cannot be only a _
   - at least a character long
   - cannot start with a number"""
+
     v = var.replace('_', '')
-    if not v: return False
-    if var.upper() in gl: return False
-    if 47 < ord(var[0]) < 58: return False
+    if not v:
+        return False
+    if var.upper() in gl:
+        return False
+    if 47 < ord(var[0]) < 58:
+        return False
+
     return v.isalnum()
 
 def correct_value(value, type):
     """Checks if a value is correct.
-Type defines the (excluded) upper bound:
-  - 0: MAXINT
-  - 1: RAMSIZE
-  - 2: IOSIZE
-  - 3: WORDSIZE
-  - 4: WRTLIMIT
-  - 5: ROMSIZE
-  - 6: 2
-Correct value means:
-  - numeric
-  - in bounds (not mandatory, warns)"""
-    if not value: return False
-    if not value.isnumeric(): return False
+    Type defines the (excluded) upper bound:
+      - 0: MAXINT
+      - 1: RAMSIZE
+      - 2: IOSIZE
+      - 3: WORDSIZE
+      - 4: WRTLIMIT
+      - 5: ROMSIZE
+      - 6: 2
+    Correct value means:
+      - numeric
+      - in bounds (not mandatory, warns)"""
+
+    if not value:
+        return False
+    if not value.isnumeric():
+        return False
     if int(value) >= bounds[type] and show_warnings:
         print(Fore.RED + 'WARNING: %s %s is out of bounds (>= %d).' %(comments[type], value, bounds[type]) + atline())
+
     return True
 
 def export(file):
     global file_lines, line # for atline()
 
     print('\nExporting', file)
-    if show_warnings: print(Fore.RED+"""WARNING: This program will not add NOP for longer instructions,
+
+    if show_warnings:
+        print(Fore.RED+"""WARNING: This program will not add NOP for longer instructions,
          to allow for more freedom concerning parallel execution.
          You will be warned in case some incompatible instructions
          are detected, but make sure to add NOP for extra safety.""")
-    else: print(Fore.YELLOW+'Warnings are DISABLED')
+    else:
+        print(Fore.YELLOW+'Warnings are DISABLED')
 
     print('\nReading file, removing tabs and comments...')
 
@@ -268,7 +291,8 @@ def export(file):
 
             elif is_cmd(word):
                 name = get_cmd_name(current[0])
-                raise AttributeError(Fore.RED+'Not enough arguments for "%s": expected %d, got %d%s' %(name, commands[current[0]]>>9, len(current[1]), atline()))
+                raise AttributeError(Fore.RED+'Not enough arguments for "%s": expected %d, got %d%s'
+                    %(name, commands[current[0]]>>9, len(current[1]), atline()))
 
             else:
                 # no value check, wait till all variables are loaded
@@ -284,8 +308,10 @@ def export(file):
 
     if remaining:
         raise EOFError(Fore.RED+'Unexpected end of file.')
+
     if len(program) > ROMSIZE:
         raise MemoryError(Fore.RED+'Out of program memory (%d/%d).' %(len(program), ROMSIZE))
+
     if not end and show_warnings:
         print(Fore.RED+'WARNING: No HLT instruction detected.')
 
@@ -347,10 +373,13 @@ def export(file):
                 if cmd in parallel:
                     if cmd != NOP:
                         print('  | %sNoticed overlap between %s and %s at line %d' %(Fore.CYAN, a, b, line))
-                elif show_warnings:
-                    print('%sWARNING: Possible conflict between instructions %s (%d cycle(s) remaining) and %s%s' %(Fore.YELLOW, a, r[1], b, atline()))
 
-        for d in done: running.remove(d)
+                elif show_warnings:
+                    print('%sWARNING: Possible conflict between instructions %s (%d cycle(s) remaining) and %s%s'
+                        %(Fore.YELLOW, a, r[1], b, atline()))
+
+        for d in done:
+            running.remove(d)
 
         running.append([cmd, multiple[cmd]])
 
@@ -361,7 +390,8 @@ def export(file):
     data = ''
     i = 0
 
-    if show_code: print(Fore.CYAN+'\nOP   code  arg1  arg2   #instr')
+    if show_code:
+        print(Fore.CYAN+'\nOP   code  arg1  arg2   #instr')
 
     for p in program:
         cmd, args = p
@@ -377,7 +407,11 @@ def export(file):
         elif not args: p[1] = [0, 0]
 
         if show_code:
-            print('%s %s %s %s ' %(get_cmd_name(cmd), _bin(cmd-1000, 6), _bin(p[1][0], 5), _bin(p[1][1], 5)), i)
+            print('%s %s %s %s '
+                %(get_cmd_name(cmd),
+                  _bin(cmd-1000, 6),
+                  _bin(p[1][0], 5),
+                  _bin(p[1][1], 5)), i)
 
         i += 1
         data += _bin(cmd-1000, 6)+_bin(p[1][0], 5)+_bin(p[1][1], 5)
@@ -465,7 +499,7 @@ def initcolors():
 save_options()
 is_init = False
 
-if False: # enable this while debugging
+if False: # debugging
     colors = False
     show_code = True
     argv = []
