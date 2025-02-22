@@ -55,7 +55,8 @@ This is an assembly language. Convert code into a [schematic](https://www.cursef
   ```
 
 - On the use of NOP:
-  > [!WARNING] It is your respondibility to use NOP for multiple-cycle instructions. Some instructions can be run in parallel, use this at rouy own risk!
+  > [!WARNING]
+  > It is your respondibility to use NOP for multiple-cycle instructions. Some instructions can be run in parallel, use this at rouy own risk!
 
 ## Help for `ass2schem.py`:
 
